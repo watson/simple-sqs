@@ -21,6 +21,10 @@ management:
 
 [![js-standard-style](https://raw.githubusercontent.com/feross/standard/master/badge.png)](https://github.com/feross/standard)
 
+## Todo
+
+- Add more tests (sorry... had to ship it)
+
 ## Installation
 
 ```
