@@ -1,0 +1,33 @@
+{
+  "name": "simple-sqs",
+  "version": "0.0.0",
+  "description": "A simple wrapper around the AWS SQS queue service",
+  "main": "index.js",
+  "scripts": {
+    "test": "standard && tape test.js"
+  },
+  "keywords": [
+    "sqs",
+    "queue",
+    "queueing",
+    "aws"
+  ],
+  "author": "Thomas Watosn Steen <w@tson.dk>",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.1.30",
+    "debug": "^2.2.0"
+  },
+  "devDependencies": {
+    "standard": "^3.11.1",
+    "tape": "^4.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/watson/simple-sqs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/watson/simple-sqs/issues"
+  },
+  "homepage": "https://github.com/watson/simple-sqs"
+}
