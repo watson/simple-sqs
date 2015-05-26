@@ -6,7 +6,8 @@ var AWS = require('aws-sdk')
 var debug = require('debug')('simple-sqs')
 
 var defaultOpts = {
-  apiVersion: '2012-11-05'
+  apiVersion: '2012-11-05',
+  region: 'us-east-1'
 }
 
 module.exports = function (opts) {

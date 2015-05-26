@@ -69,7 +69,7 @@ single options argument to configure SQS. For details about
 configuration options, see the official [aws-sdk SQS
 documentation](http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/SQS.html).
 If no argument is provided `simple-sqs` defaults to `{ apiVersion:
-'2012-11-05' }`:
+'2012-11-05', region: 'us-east-1' }`:
 
 ```js
 var opts = {...} // SQS config options
