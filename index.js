@@ -52,7 +52,8 @@ Queue.prototype.poll = function () {
   var self = this
   var opts = {
     QueueUrl: this.queue,
-    AttributeNames: [ 'All' ]
+    AttributeNames: [ 'All' ],
+    MessageAttributeNames: [ 'All' ]
   }
   debug('Polling queue...')
   this.sqs.receiveMessage(opts, function (err, data) {
