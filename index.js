@@ -73,11 +73,13 @@ Queue.prototype._processMsg = function (msg) {
     msg.Body = JSON.parse(msg.Body)
   } catch (e) {
     debug('[%s] Could not parse message', msg.MessageId)
-    e.MessageId = msg.MessageId
-    e.Body = msg.Body
-    this.emit('error', e)
-    this.deleteMsg(msg) // since the message could not be parsed, there is no need in trying again
-    return
+    if (!self.opts.ignoreParseErrors) {
+      e.MessageId = msg.MessageId
+      e.Body = msg.Body
+      this.emit('error', e)
+      this.deleteMsg(msg) // since the message could not be parsed, there is no need in trying again
+      return
+    }
   }
   this.emit('message', msg, function (err) {
     if (err) return self.emit('error', err)

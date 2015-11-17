@@ -15,7 +15,8 @@ management:
 - It expects that the message body is json and will parse it for you
 - If the message body cannot be parsed, it's considered an
   unrecoverable error and the message is deleted from the queue while
-  emitting an `error` event
+  emitting an `error` event. You can override this behaviour and ignore
+  parser errors with the option `ignoreParseErrors`
 
 [![Build status](https://travis-ci.org/watson/simple-sqs.svg?branch=master)](https://travis-ci.org/watson/simple-sqs)
 
