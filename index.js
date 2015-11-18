@@ -3,6 +3,7 @@
 var util = require('util')
 var EventEmitter = require('events').EventEmitter
 var AWS = require('aws-sdk')
+var async = require('async')
 var debug = require('debug')('simple-sqs')
 
 var defaultOpts = {
@@ -63,12 +64,29 @@ Queue.prototype.poll = function () {
       setTimeout(self.poll.bind(self), 1000 * 5)
       return
     }
-    (data.Messages || []).forEach(self._processMsg.bind(self))
-    self.poll()
+
+    var killed = false
+    var messageFinishTimeout = setTimeout(function () {
+      killed = true
+      self.poll()
+    }, 2 * 60 * 1000) // 2 minutes timeout
+
+    var tasks = [];
+    (data.Messages || []).forEach(function (message) {
+      tasks.push(function (cb) {
+        self._processMsg(message, cb)
+      })
+    })
+    async.parallel(tasks, function () {
+      if (!killed) {
+        clearTimeout(messageFinishTimeout)
+        process.nextTick(self.poll.bind(self))
+      }
+    })
   })
 }
 
-Queue.prototype._processMsg = function (msg) {
+Queue.prototype._processMsg = function (msg, cb) {
   var self = this
   debug('[%s] Processing message...', msg.MessageId)
   try {
@@ -84,7 +102,8 @@ Queue.prototype._processMsg = function (msg) {
     }
   }
   this.emit('message', msg, function (err) {
-    if (err) return self.emit('error', err)
-    self.deleteMsg(msg)
+    if (err)  self.emit('error', err)
+    else      self.deleteMsg(msg)
+    cb()
   })
 }
