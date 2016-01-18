@@ -102,8 +102,8 @@ Queue.prototype._processMsg = function (msg, cb) {
     }
   }
   this.emit('message', msg, function (err) {
-    if (err)  self.emit('error', err)
-    else      self.deleteMsg(msg)
+    if (err) self.emit('error', err)
+    else self.deleteMsg(msg)
     cb()
   })
 }
