@@ -11,7 +11,7 @@ test('EventEmitter', function (t) {
 
 test('init with default options', function (t) {
   var queue = SimpleSqs()()
-  t.deepEquals(queue.opts, { apiVersion: '2012-11-05' })
+  t.deepEquals(queue.opts, { apiVersion: '2012-11-05', region: 'us-east-1' })
   t.end()
 })
 
