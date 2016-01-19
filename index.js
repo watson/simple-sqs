@@ -3,6 +3,7 @@
 var util = require('util')
 var EventEmitter = require('events').EventEmitter
 var AWS = require('aws-sdk')
+var async = require('async')
 var debug = require('debug')('simple-sqs')
 
 var defaultOpts = {
@@ -51,7 +52,9 @@ Queue.prototype.deleteMsg = function (msg) {
 Queue.prototype.poll = function () {
   var self = this
   var opts = {
-    QueueUrl: this.queue
+    QueueUrl: this.queue,
+    AttributeNames: [ 'All' ],
+    MessageAttributeNames: [ 'All' ]
   }
   debug('Polling queue...')
   this.sqs.receiveMessage(opts, function (err, data) {
@@ -61,26 +64,46 @@ Queue.prototype.poll = function () {
       setTimeout(self.poll.bind(self), 1000 * 5)
       return
     }
-    (data.Messages || []).forEach(self._processMsg.bind(self))
-    self.poll()
+
+    var killed = false
+    var messageFinishTimeout = setTimeout(function () {
+      killed = true
+      self.poll()
+    }, 2 * 60 * 1000) // 2 minutes timeout
+
+    var tasks = [];
+    (data.Messages || []).forEach(function (message) {
+      tasks.push(function (cb) {
+        self._processMsg(message, cb)
+      })
+    })
+    async.parallel(tasks, function () {
+      if (!killed) {
+        clearTimeout(messageFinishTimeout)
+        process.nextTick(self.poll.bind(self))
+      }
+    })
   })
 }
 
-Queue.prototype._processMsg = function (msg) {
+Queue.prototype._processMsg = function (msg, cb) {
   var self = this
   debug('[%s] Processing message...', msg.MessageId)
   try {
     msg.Body = JSON.parse(msg.Body)
   } catch (e) {
     debug('[%s] Could not parse message', msg.MessageId)
-    e.MessageId = msg.MessageId
-    e.Body = msg.Body
-    this.emit('error', e)
-    this.deleteMsg(msg) // since the message could not be parsed, there is no need in trying again
-    return
+    if (!self.opts.ignoreParseErrors) {
+      e.MessageId = msg.MessageId
+      e.Body = msg.Body
+      this.emit('error', e)
+      this.deleteMsg(msg) // since the message could not be parsed, there is no need in trying again
+      return
+    }
   }
   this.emit('message', msg, function (err) {
-    if (err) return self.emit('error', err)
-    self.deleteMsg(msg)
+    if (err) self.emit('error', err)
+    else self.deleteMsg(msg)
+    cb()
   })
 }
