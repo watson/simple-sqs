@@ -65,17 +65,17 @@ Queue.prototype.poll = function () {
       return
     }
 
-    var killed = false
-    var messageFinishTimeout = setTimeout(function () {
-      killed = true
-      self.poll()
-    }, 2 * 60 * 1000) // 2 minutes timeout
+    var done = false
+
+    setTimeout(function () {
+      if (!self.opts.wait || done) self.poll()
+      done = true
+    }, self.opts.pollInterval || 0)
 
     var next = afterAll(function (err) {
       if (err) self.emit('error', err)
-      if (killed) return
-      clearTimeout(messageFinishTimeout)
-      process.nextTick(self.poll.bind(self))
+      if (self.opts.wait && done) self.poll()
+      done = true
     })
 
     if (data.Messages) {

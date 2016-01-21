@@ -22,10 +22,6 @@ management:
 
 [![js-standard-style](https://raw.githubusercontent.com/feross/standard/master/badge.png)](https://github.com/feross/standard)
 
-## Todo
-
-- Add more tests (sorry... had to ship it)
-
 ## Installation
 
 ```
@@ -66,16 +62,31 @@ queue.on('message', function (msg, done) {
 ## API
 
 The `simple-sqs` module exposes an initializer function that takes a
-single options argument to configure SQS. For details about
-configuration options, see the official [aws-sdk SQS
-documentation](http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/SQS.html).
-If no argument is provided `simple-sqs` defaults to `{ apiVersion:
-'2012-11-05', region: 'us-east-1' }`:
+single options argument to configure SQS. Besides a few custom options
+that are described below, you can supply the regular aws-sdk
+configuration options. See the official [aws-sdk SQS
+documentation](http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/SQS.html)
+for details.  If no argument is provided `simple-sqs` defaults to `{
+apiVersion: '2012-11-05', region: 'us-east-1' }`:
 
 ```js
 var opts = {...} // SQS config options
 var simpleSqs = require('simple-sqs')(opts)
 ```
+
+**Options:**
+
+- `wait` - Boolean, defaults to `false`. If set to `true`, the module
+  will wait for all messages to finish processing before polling again.
+  Takes precedence over `pollInterval` if messages take longer to
+  process
+- `pollInterval` - Integer, defaults to `0` which means that the queue
+  will be polled immediately after a batch of messages have been
+  received unless `wait` is set to `true`
+- `ignoreParseErrors` - Boolean, defaults to `false`. If a message
+  cannot be parsed, it's normally considered a permanent failure and the
+  message will be deleted from the queue. To overwrite this behaviour,
+  set this option to `true`.
 
 The returned `simpleSqs` value is a queue setup function that takes two
 arguments and returns a queue object:
