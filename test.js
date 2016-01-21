@@ -2,22 +2,22 @@
 
 var test = require('tape')
 var AWS = require('aws-sdk')
-var SimpleSqs = require('./')
+var SQS = require('./')
 
 test('EventEmitter', function (t) {
-  var queue = SimpleSqs()()
+  var queue = SQS()()
   t.ok(queue instanceof require('events').EventEmitter)
   t.end()
 })
 
 test('init with default options', function (t) {
-  var queue = SimpleSqs()()
+  var queue = SQS()()
   t.deepEquals(queue.opts, { apiVersion: '2012-11-05', region: 'us-east-1' })
   t.end()
 })
 
 test('init with custom options', function (t) {
-  var queue = SimpleSqs({ foo: 'bar' })()
+  var queue = SQS({ foo: 'bar' })()
   t.deepEquals(queue.opts, { foo: 'bar' })
   t.end()
 })
@@ -35,7 +35,7 @@ test('no messages', function (t) {
     }
   }
 
-  var queue = SimpleSqs()('foo', function (msg, done) {
+  var queue = SQS()('foo', function (msg, done) {
     t.ok(false, 'should not call message callback')
   })
 
@@ -59,7 +59,7 @@ test('process messages while keep polling', function (t) {
     }
   }
 
-  var queue = SimpleSqs()('foo', function (msg, done) {
+  var queue = SQS()('foo', function (msg, done) {
     polls++
     t.deepEquals(msg, { Body: { foo: true } })
   })
@@ -88,7 +88,7 @@ test('wait', function (t) {
     }
   }
 
-  var queue = SimpleSqs({ wait: true })('foo', function (msg, done) {
+  var queue = SQS({ wait: true })('foo', function (msg, done) {
     processing = true
     setTimeout(function () {
       processed++
@@ -118,7 +118,7 @@ test('pollInterval', function (t) {
     }
   }
 
-  var queue = SimpleSqs({ pollInterval: 100 })('foo', function (msg, done) {
+  var queue = SQS({ pollInterval: 100 })('foo', function (msg, done) {
     process.nextTick(done)
     if (polls === 2) {
       queue.poll = function () {} // stop polling
@@ -146,7 +146,7 @@ test('pollInterval > wait', function (t) {
     }
   }
 
-  var queue = SimpleSqs({ wait: true, pollInterval: 200 })('foo', function (msg, done) {
+  var queue = SQS({ wait: true, pollInterval: 200 })('foo', function (msg, done) {
     process.nextTick(done)
     if (polls === 2) {
       t.ok(didWait)
