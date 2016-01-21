@@ -159,6 +159,18 @@ queue.on('error', function (err) {
 You can enable debug output using the `DEBUG=simple-sqs` environment
 variable.
 
+## Testing
+
+The tests require a real SQS queue to run. Set it up and use the
+`~/.aws/credentials` or EC2 configured role to give the module the
+proper access.
+
+Then run:
+
+```
+npm test
+```
+
 ## License
 
 MIT
