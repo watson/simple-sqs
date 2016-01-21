@@ -19,13 +19,12 @@ management:
   parser errors with the option `ignoreParseErrors`
 
 [![Build status](https://travis-ci.org/watson/simple-sqs.svg?branch=master)](https://travis-ci.org/watson/simple-sqs)
-
-[![js-standard-style](https://raw.githubusercontent.com/feross/standard/master/badge.png)](https://github.com/feross/standard)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://github.com/feross/standard)
 
 ## Installation
 
 ```
-npm install simple-sqs
+npm install simple-sqs --save
 ```
 
 ## Usage
@@ -33,11 +32,11 @@ npm install simple-sqs
 Simple example using a convinient callback function to get messages:
 
 ```js
-var simpleSqs = require('simple-sqs')()
+var sqs = require('simple-sqs')()
 
 var queueUrl = 'https://sqs.us-east-1.amazonaws.com/12345/my-queue'
 
-simpleSqs(queueUrl, function (msg, done) {
+sqs(queueUrl, function (msg, done) {
   console.log('Received a new message with id:', msg.MessageId)
   console.log(msg.Body)
 
@@ -51,7 +50,7 @@ Or, if you do not provide the optional 2nd callback argument, you can
 always listen for messages on the returned EventEmitter:
 
 ```js
-var queue = simpleSqs(queueUrl)
+var queue = sqs(queueUrl)
 
 queue.on('message', function (msg, done) {
   console.log('Received a new message with id:', msg.MessageId)
@@ -71,7 +70,7 @@ apiVersion: '2012-11-05', region: 'us-east-1' }`:
 
 ```js
 var opts = {...} // SQS config options
-var simpleSqs = require('simple-sqs')(opts)
+var sqs = require('simple-sqs')(opts)
 ```
 
 **Options:**
@@ -88,11 +87,11 @@ var simpleSqs = require('simple-sqs')(opts)
   message will be deleted from the queue. To overwrite this behaviour,
   set this option to `true`.
 
-The returned `simpleSqs` value is a queue setup function that takes two
+The returned `sqs` value is a queue setup function that takes two
 arguments and returns a queue object:
 
 ```js
-var queue = simpleSqs(url[, callback])
+var queue = sqs(url[, callback])
 ```
 
 **Arguments:**
