@@ -3,7 +3,7 @@
 var util = require('util')
 var EventEmitter = require('events').EventEmitter
 var AWS = require('aws-sdk')
-var async = require('async')
+var afterAll = require('after-all')
 var debug = require('debug')('simple-sqs')
 
 var defaultOpts = {
@@ -53,8 +53,8 @@ Queue.prototype.poll = function () {
   var self = this
   var opts = {
     QueueUrl: this.queue,
-    AttributeNames: [ 'All' ],
-    MessageAttributeNames: [ 'All' ]
+    AttributeNames: ['All'],
+    MessageAttributeNames: ['All']
   }
   debug('Polling queue...')
   this.sqs.receiveMessage(opts, function (err, data) {
@@ -71,18 +71,18 @@ Queue.prototype.poll = function () {
       self.poll()
     }, 2 * 60 * 1000) // 2 minutes timeout
 
-    var tasks = [];
-    (data.Messages || []).forEach(function (message) {
-      tasks.push(function (cb) {
-        self._processMsg(message, cb)
+    var next = afterAll(function (err) {
+      if (err) self.emit('error', err)
+      if (killed) return
+      clearTimeout(messageFinishTimeout)
+      process.nextTick(self.poll.bind(self))
+    })
+
+    if (data.Messages) {
+      data.Messages.forEach(function (message) {
+        self._processMsg(message, next())
       })
-    })
-    async.parallel(tasks, function () {
-      if (!killed) {
-        clearTimeout(messageFinishTimeout)
-        process.nextTick(self.poll.bind(self))
-      }
-    })
+    }
   })
 }
 
@@ -93,17 +93,17 @@ Queue.prototype._processMsg = function (msg, cb) {
     msg.Body = JSON.parse(msg.Body)
   } catch (e) {
     debug('[%s] Could not parse message', msg.MessageId)
-    if (!self.opts.ignoreParseErrors) {
+    if (!this.opts.ignoreParseErrors) {
       e.MessageId = msg.MessageId
       e.Body = msg.Body
-      this.emit('error', e)
       this.deleteMsg(msg) // since the message could not be parsed, there is no need in trying again
+      cb(e)
       return
     }
   }
   this.emit('message', msg, function (err) {
-    if (err) self.emit('error', err)
-    else self.deleteMsg(msg)
+    if (err) return cb(err)
+    self.deleteMsg(msg)
     cb()
   })
 }
