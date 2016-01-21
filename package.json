@@ -16,7 +16,7 @@
   "license": "MIT",
   "dependencies": {
     "after-all": "^2.0.2",
-    "aws-sdk": "^2.1.30",
+    "aws-sdk": "^2.2.31",
     "debug": "^2.2.0"
   },
   "devDependencies": {
